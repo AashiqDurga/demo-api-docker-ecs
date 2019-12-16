@@ -1,0 +1,39 @@
+orbs:
+  aws-ecr: circleci/aws-ecr@6.5.0
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0
+    steps:
+      - checkout
+      - run:
+          name: Restore
+          command: dotnet restore
+          working_directory: demo-api-docker-ecs
+      - run:
+          name: Build
+          command: dotnet build -c Release
+          working_directory: demo-api-docker-ecs
+  test:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0
+    steps:
+      - checkout
+      - run:
+          name: Running Tests
+          command: dotnet test
+          working_directory: demo-api-docker-ecs-tests
+workflows:
+  version: 2
+  build_test_push:
+    jobs:
+      - build
+      - test:
+          requires: 
+            - build
+      - aws-ecr/build-and-push-image:
+          requires:
+                - test
+          repo: get-offered
+          tag: $CIRCLE_BUILD_NUM
