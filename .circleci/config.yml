@@ -35,5 +35,5 @@ workflows:
       - aws-ecr/build-and-push-image:
           requires:
                 - test
-          repo: get-offered
+          repo: repo-name
           tag: $CIRCLE_BUILD_NUM
